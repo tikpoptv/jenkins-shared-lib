@@ -5,6 +5,7 @@ Jenkins Shared Library for deploying to Coolify platform
 ## 📋 Features
 
 - **deployToCoolify**: Function to trigger deployment to Coolify
+- **notifyN8N**: Function to send notifications to N8N webhook
 
 ## 🚀 Installation
 
@@ -25,6 +26,7 @@ Create the following credentials in Jenkins:
 1. **COOLIFY_TOKEN**: Token for Coolify API
 2. **COOLIFY_UUID**: UUID of the project in Coolify
 3. **COOLIFY_URL**: URL of the Coolify instance
+4. **n8n-webhook**: N8N webhook URL for notifications
 
 ## 📖 Usage
 
@@ -56,6 +58,41 @@ pipeline {
                     'coolify-token-cred',
                     'coolify-url-cred'
                 )
+            }
+        }
+    }
+}
+```
+
+### notifyN8N
+
+This function is used to send notifications to N8N webhook
+
+#### Parameters
+
+- `status` (String): Status of the build/deployment (e.g., "success", "failure", "started")
+- `details` (String): Additional details about the build/deployment
+
+#### Usage Example
+
+```groovy
+@Library('jenkins-shared-lib') _
+
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building application...'
+            }
+            post {
+                success {
+                    notifyN8N('success', 'Build completed successfully')
+                }
+                failure {
+                    notifyN8N('failure', 'Build failed')
+                }
             }
         }
     }
@@ -105,9 +142,11 @@ pipeline {
     post {
         success {
             echo 'Deployment successful! 🎉'
+            notifyN8N('success', 'Deployment completed successfully')
         }
         failure {
             echo 'Deployment failed! ❌'
+            notifyN8N('failure', 'Deployment failed')
         }
     }
 }
@@ -120,7 +159,8 @@ pipeline {
 ```
 jenkins-shared-lib/
 ├── vars/
-│   └── deployToCoolify.groovy    # Function for deploying to Coolify
+│   ├── deployToCoolify.groovy    # Function for deploying to Coolify
+│   └── notifyN8N.groovy          # Function for sending N8N notifications
 └── README.md                     # This documentation
 ```
 
