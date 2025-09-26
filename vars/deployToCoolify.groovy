@@ -1,12 +1,13 @@
-def call(String projectName, String uuidCredId, String tokenCredId) {
+def call(String projectName, String uuidCredId, String tokenCredId, String urlCredId) {
     withCredentials([
         string(credentialsId: tokenCredId, variable: 'COOLIFY_TOKEN'),
-        string(credentialsId: uuidCredId, variable: 'COOLIFY_UUID')
+        string(credentialsId: uuidCredId, variable: 'COOLIFY_UUID'),
+        string(credentialsId: urlCredId,   variable: 'COOLIFY_URL')
     ]) {
         sh """
         echo "🚀 Triggering deploy on Coolify for ${projectName}..."
         RESPONSE=\$(curl -s -o response.json -w "%{http_code}" \\
-          -X GET "https://coolify.phitik.com/api/v1/deploy?uuid=\$COOLIFY_UUID&force=true" \\
+          -X GET "\$COOLIFY_URL/api/v1/deploy?uuid=\$COOLIFY_UUID&force=true" \\
           -H "Authorization: Bearer \$COOLIFY_TOKEN")
 
         echo "HTTP Status: \$RESPONSE"
